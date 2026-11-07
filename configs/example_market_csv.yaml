@@ -1,0 +1,59 @@
+run_id: example_market_csv
+seed: 42
+data_filter:
+  min_spread: 0.05
+  max_relative_spread: 1.5
+  min_volume: 5.0
+  min_open_interest: 10.0
+  reject_american: true
+  reject_unknown: true
+  max_stale_seconds: 3600.0
+  parity_interval_check: true
+calibration:
+  safety_margin: 0.02
+  loss_function: soft_l1
+  price_scale_floor: 0.05
+  max_nfev: 3000
+  ftol: 1.0e-8
+  xtol: 1.0e-8
+  gtol: 1.0e-8
+  multi_start_seeds: [42, 123, 999]
+  initial_rho: -0.35
+  initial_gamma: 0.35
+  f_scale: 1.0
+grid:
+  k_min: -1.5
+  k_max: 1.5
+  n_k: 121
+  T_min: 0.02
+  T_max: 3.0
+  n_T: 61
+  g_tolerance: -1.0e-6
+  w_T_tolerance: -1.0e-6
+  refinement_factor: 2
+density:
+  n_strikes: 301
+  std_dev_range: 5.0
+  integration_limit: 200
+  epsabs: 1.0e-7
+  epsrel: 1.0e-6
+local_vol:
+  g_denominator_min: 0.0001
+  require_positive_w_T: true
+synthetic:
+  seed: 42
+  spot: 100.0
+  rate: 0.04
+  dividend: 0.015
+  expiries: [0.1, 0.25, 0.5, 1.0, 1.5, 2.0]
+  moneyness_min: -0.6
+  moneyness_max: 0.6
+  n_strikes_per_expiry: 25
+  true_rho: -0.4
+  true_eta: 1.1
+  true_gamma: 0.35
+  true_theta_base: 0.04
+  true_theta_slope: 0.05
+  relative_spread: 0.03
+  price_noise_std: 0.02
+  include_anomalies: false
