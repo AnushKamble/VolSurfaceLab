@@ -143,6 +143,10 @@ class AdmissibilityReport(BaseModel):
     cond2_value: float = Field(..., description="max theta*phi^2*(1+|rho|)")
     cond2_margin: float = Field(..., description="4 - cond2_value")
     calendar_ratio_bound_satisfied: bool
+    lee_wing_right: Optional[float] = None
+    lee_wing_left: Optional[float] = None
+    lee_critical_moment_right: Optional[float] = None
+    lee_critical_moment_left: Optional[float] = None
     details: Dict[str, Any] = Field(default_factory=dict)
 
 
@@ -182,6 +186,16 @@ class DensityResult(BaseModel):
     negative_count: int
     support_min: float
     support_max: float
+    variance: Optional[float] = None
+    std_dev: Optional[float] = None
+    skewness: Optional[float] = None
+    kurtosis: Optional[float] = None
+    log_mean: Optional[float] = None
+    log_variance: Optional[float] = None
+    log_skewness: Optional[float] = None
+    log_kurtosis: Optional[float] = None
+    analytic_cdf: Optional[List[float]] = None
+    max_cdf_error: Optional[float] = None
     warnings: List[str] = Field(default_factory=list)
 
 
@@ -199,6 +213,7 @@ class LocalVolResult(BaseModel):
     valid_cells: int
     min_local_vol: Optional[float] = None
     max_local_vol: Optional[float] = None
+    drift: Optional[float] = None
 
 
 class RunArtifact(BaseModel):

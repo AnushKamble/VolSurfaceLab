@@ -52,6 +52,7 @@ def check_put_call_parity_intervals(
     forward: float,
     strike: float,
     discount_factor: float,
+    time_to_maturity: float = 0.0,
 ) -> ParityCheckResult:
     """Diagnose put-call parity using bid-ask quote intervals.
 
@@ -82,7 +83,7 @@ def check_put_call_parity_intervals(
 
     return ParityCheckResult(
         strike=strike,
-        time_to_maturity=0.0,  # attached by caller
+        time_to_maturity=time_to_maturity,
         forward=forward,
         discount_factor=discount_factor,
         call_mid=call_mid,

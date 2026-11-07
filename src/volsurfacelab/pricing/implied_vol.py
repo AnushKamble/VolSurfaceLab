@@ -141,25 +141,20 @@ def implied_volatility_brent(
     f_low = objective(vol_min)
     # If price is smaller than price at vol_min, but above lower bound:
     if f_low > 0.0:
-        # Price is between lower_bound (vol=0) and vol_min
-        vol_min_adj = 1e-8
-        f_low_adj = objective(vol_min_adj)
-        if f_low_adj * f_low <= 0.0:
-            vol_min = vol_min_adj
-            f_low = f_low_adj
-        else:
-            # Check near-zero vega condition
-            vega = black_forward_vega(forward, strike, discount_factor, time_to_maturity, vol_min)
-            if vega < 1e-12:
-                return InversionResult(
-                    success=False,
-                    iv=None,
-                    total_variance=None,
-                    iterations=0,
-                    residual=float(f_low),
-                    status_code=StatusCode.INVERSION_NEAR_ZERO_VEGA,
-                    reason=f"Vega {vega:.2e} below threshold and price below vol_min.",
-                )
+        # Since price > lower_bound, the root lies strictly in [0, vol_min]
+        f_zero = float(lower_bound - price)
+        if abs(f_zero) <= tolerance:
+            return InversionResult(
+                success=True,
+                iv=0.0,
+                total_variance=0.0,
+                iterations=0,
+                residual=float(f_zero),
+                status_code=StatusCode.INVERSION_SUCCESS,
+                reason="Price matches lower bound within numerical tolerance.",
+            )
+        vol_min = 0.0
+        f_low = f_zero
 
     f_high = objective(vol_max)
     # Expand bracket if market price exceeds price at vol_max

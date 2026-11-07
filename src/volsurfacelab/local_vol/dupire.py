@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 import numpy as np
 
 from volsurfacelab.config import LocalVolConfig
@@ -47,11 +47,16 @@ def evaluate_dupire_local_volatility(
     T_grid: np.ndarray,
     forward: float = 100.0,
     config: Optional[LocalVolConfig] = None,
+    drift: Union[float, Callable[[float], float]] = 0.0,
 ) -> LocalVolResult:
     """Compute Dupire local variance and local volatility on a 2D rectangular grid.
 
     Calculates:
     - local_variance = w_T(k, T) / g(k, T)
+      In log-forward moneyness coordinates k = ln(K / F_T), the convective derivative
+      -mu(T) * w_k(k, T) from the time-varying forward F_T = S_0 * exp(mu * T) exactly cancels
+      with the PDE underlying drift term mu(T) * K * partial_K C. Consequently, local variance
+      is identically w_T(k, T) / g(k, T) across all maturities, rates, and dividends.
     - local_volatility = sqrt(local_variance) on valid cells.
 
     Strict Safeguards:
@@ -101,8 +106,11 @@ def evaluate_dupire_local_volatility(
                 reason_codes[i][j] = StatusCode.LOCAL_VOL_DENOMINATOR_NON_POSITIVE.value
                 continue
 
-            # Guard 2: Calendar numerator w_T < 0
-            if w_T < -1e-8:
+            # Calendar numerator: w_T (holding forward log-moneyness k fixed)
+            num = w_T
+
+            # Guard 2: Calendar numerator < 0
+            if num < -1e-8:
                 reason_codes[i][j] = StatusCode.LOCAL_VOL_NUMERATOR_NEGATIVE.value
                 continue
 
@@ -112,7 +120,7 @@ def evaluate_dupire_local_volatility(
                 continue
 
             # Compute variance ratio
-            loc_var = w_T / g
+            loc_var = num / g
             if loc_var < 0.0:
                 reason_codes[i][j] = StatusCode.LOCAL_VOL_VARIANCE_NEGATIVE.value
                 continue
@@ -133,6 +141,7 @@ def evaluate_dupire_local_volatility(
     valid_fraction = float(valid_cells / total_cells) if total_cells > 0 else 0.0
     min_vol = float(np.min(valid_vol_values)) if valid_vol_values else None
     max_vol = float(np.max(valid_vol_values)) if valid_vol_values else None
+    drift_val = float(drift) if not callable(drift) else None
 
     return LocalVolResult(
         expiries=T_grid.tolist(),
@@ -147,4 +156,5 @@ def evaluate_dupire_local_volatility(
         valid_cells=valid_cells,
         min_local_vol=min_vol,
         max_local_vol=max_vol,
+        drift=drift_val,
     )

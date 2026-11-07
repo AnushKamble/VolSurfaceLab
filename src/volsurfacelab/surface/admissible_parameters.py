@@ -189,8 +189,10 @@ def unconstrained_to_params(
     safety_margin: float = 0.01,
 ) -> Tuple[float, float, float, List[float]]:
     """Map unconstrained real vector u back to strictly admissible parameters (rho, eta, gamma, theta_knots)."""
-    u_rho, u_gamma, u_eta = u[0], u[1], u[2]
-    u_thetas = u[3:]
+    u_rho = float(np.clip(u[0], -15.0, 15.0))
+    u_gamma = float(np.clip(u[1], -30.0, 30.0))
+    u_eta = float(np.clip(u[2], -30.0, 30.0))
+    u_thetas = np.clip(u[3:], -20.0, 5.0)
 
     # rho in (-1, 1)
     rho = float(np.tanh(u_rho))

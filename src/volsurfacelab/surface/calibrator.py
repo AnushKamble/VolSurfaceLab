@@ -72,6 +72,7 @@ def calibrate_ssvi(
     opt_types = []
     k_arr = np.zeros(n, dtype=np.float64)
     market_ivs = np.zeros(n, dtype=np.float64)
+    market_iv_valid = np.zeros(n, dtype=bool)
 
     for i, q in enumerate(quotes):
         F_arr[i] = q.forward if q.forward is not None else 100.0
@@ -95,13 +96,17 @@ def calibrate_ssvi(
             time_to_maturity=T_arr[i],
             option_type=opt_types[i],
         )
-        market_ivs[i] = inv.iv if inv.success and inv.iv is not None else 0.2
+        if inv.success and inv.iv is not None and inv.iv > 0.0:
+            market_ivs[i] = inv.iv
+            market_iv_valid[i] = True
+        else:
+            market_ivs[i] = 0.20
 
     # 3. Initialise ATM total-variance knots theta_m
     init_thetas: List[float] = []
     for T in expiries:
         # Find near-ATM quotes (|k| < 0.20) for expiry T
-        mask = (np.abs(T_arr - T) < 1e-5) & (np.abs(k_arr) < 0.20)
+        mask = (np.abs(T_arr - T) < 1e-5) & (np.abs(k_arr) < 0.20) & market_iv_valid
         if np.any(mask):
             iv_subset = market_ivs[mask]
             med_iv = float(np.median(iv_subset[iv_subset > 0])) if np.any(iv_subset > 0) else 0.20
@@ -264,11 +269,15 @@ def calibrate_ssvi(
     price_rmse = float(np.sqrt(np.mean(price_diff**2)))
     price_mae = float(np.mean(np.abs(price_diff)))
 
-    # Model IVs
+    # Model IVs evaluated against valid inverted market IVs
     model_ivs = np.sqrt(w_model / T_arr)
-    iv_diff = model_ivs - market_ivs
-    iv_rmse = float(np.sqrt(np.mean(iv_diff**2)))
-    iv_mae = float(np.mean(np.abs(iv_diff)))
+    if np.any(market_iv_valid):
+        iv_diff = model_ivs[market_iv_valid] - market_ivs[market_iv_valid]
+        iv_rmse = float(np.sqrt(np.mean(iv_diff**2)))
+        iv_mae = float(np.mean(np.abs(iv_diff)))
+    else:
+        iv_rmse = 0.0
+        iv_mae = 0.0
 
     # Inside bid-ask spread
     bids = np.array([q.bid for q in quotes])

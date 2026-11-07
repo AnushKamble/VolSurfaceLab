@@ -68,6 +68,15 @@ def generate_ssvi_certificate(
     # For regularised power-law, d_theta(theta*phi)/phi = (1-gamma)/(1+theta) <= 1-gamma <= 1
     cal_satisfied = bool((1.0 - gamma) <= cal_bound)
 
+    # 4. Roger Lee (2004) Moment Formula Wing Asymptotics
+    # beta_R = lim_{k->inf} w(k, theta)/k = 0.5 * theta * phi(theta) * (1 + rho) <= 0.5 * eta * (1 + rho)
+    # beta_L = lim_{k->-inf} w(k, theta)/|k| = 0.5 * theta * phi(theta) * (1 - rho) <= 0.5 * eta * (1 - rho)
+    # Condition 1 guarantees beta_R < 2 and beta_L < 2, ensuring finite asset moments
+    beta_R = float(0.5 * eta * (1.0 + rho))
+    beta_L = float(0.5 * eta * (1.0 - rho))
+    p_star = float((2.0 - beta_R)**2 / (8.0 * beta_R)) if 0.0 < beta_R < 2.0 else (float("inf") if beta_R <= 0.0 else 0.0)
+    q_star = float((2.0 - beta_L)**2 / (8.0 * beta_L)) if 0.0 < beta_L < 2.0 else (float("inf") if beta_L <= 0.0 else 0.0)
+
     # Final certificate status
     is_certified = (
         rho_in_domain
@@ -106,9 +115,16 @@ def generate_ssvi_certificate(
         cond2_value=cond2_val,
         cond2_margin=cond2_margin,
         calendar_ratio_bound_satisfied=cal_satisfied,
+        lee_wing_right=beta_R,
+        lee_wing_left=beta_L,
+        lee_critical_moment_right=p_star,
+        lee_critical_moment_left=q_star,
         details={
             "formula_family": "regularised_power_law_ssvi",
             "spec_section": "5.6",
             "is_certified": is_certified,
+            "roger_lee_moment_formula": "p* = (2-beta)^2 / (8*beta)",
+            "roger_lee_right_critical_moment": p_star,
+            "roger_lee_left_critical_moment": q_star,
         },
     )

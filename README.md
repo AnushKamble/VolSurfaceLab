@@ -2,12 +2,14 @@
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests: 87 Passed](https://img.shields.io/badge/tests-87%20passed-brightgreen.svg)]()
+[![Tests: 95 Passed](https://img.shields.io/badge/tests-95%20passed-brightgreen.svg)]()
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
 **Arbitrage-Aware Volatility Surface & Local-Risk Engine** for European vanilla options.
 
 VolSurfaceLab is a quantitative derivatives research engine that takes cross-sections of European option quotes, filters and validates market contracts, robustly inverts Black implied volatilities, calibrates a smooth **Surface SVI (SSVI)** total-variance surface under analytical no-arbitrage constraints, extracts **Breeden–Litzenberger risk-neutral densities**, and evaluates **Dupire local volatility** from exact closed-form derivatives.
+
+> 📚 **Interview Dossier**: For a deep mathematical walkthrough designed for quantitative research interviews at top-tier prop trading firms and hedge funds (Citadel, Jump Trading, Jane Street, Millennium, Point72), read [docs/QUANT_INTERVIEW_DEEP_DIVE.md](docs/QUANT_INTERVIEW_DEEP_DIVE.md).
 
 ---
 
@@ -17,15 +19,18 @@ VolSurfaceLab is a quantitative derivatives research engine that takes cross-sec
 - **Robust Implied Volatility Inversion:** Per-contract bracketed Brent root solver with automatic bracket expansion, near-intrinsic boundary detection, and near-zero vega guards. Never outputs fabricated sentinel values.
 - **Regularised Power-Law SSVI Surface:** Implements the Gatheral & Jacquier (2014) power-law SSVI model:
   $$\phi(\theta) = \frac{\eta}{\theta^\gamma (1 + \theta)^{1 - \gamma}}, \quad 0 < \gamma \le \frac{1}{2}, \quad \eta > 0, \quad |\rho| < 1$$
-- **Analytic Production Derivatives:** Closed-form analytic evaluation of $w_k, w_{kk}, w_\theta$, and $w_T = w_\theta \theta'(T)$ using a shape-preserving monotone PCHIP ATM total variance interpolator $\theta(T)$. Finite differences are used exclusively as independent test benchmarks.
-- **Theorem-Based Parameter Admissibility:** Enforces the analytical sufficient conditions for butterfly and calendar static-arbitrage freedom by construction:
+- **Analytic Production Derivatives & Monotone Extrapolation:** Closed-form analytic evaluation of $w_k, w_{kk}, w_\theta$, and $w_T = w_\theta \theta'(T)$ using a shape-preserving monotone PCHIP ATM total variance interpolator $\theta(T)$ with $C^1$ smooth linear extrapolation for $T > T_{\max}$ and $C^1$ smooth power-law left extrapolation for $T < T_{\min}$, guaranteeing $\theta(T) > 0, \theta'(T) \ge 0$, and $\lim_{T \to 0^+} \theta(T) = 0$ unconditionally across $(0, \infty)$ without derivative kinks.
+- **Theorem-Based Parameter Admissibility & Roger Lee Asymptotics:** Enforces the analytical sufficient conditions for butterfly and calendar static-arbitrage freedom by construction:
   $$\eta \le (1 - \varepsilon) \min\left( \frac{4}{1 + |\rho|}, \frac{2}{\sqrt{H_{max}(\gamma)(1 + |\rho|)}} \right), \quad H_{max}(\gamma) = \frac{(1 - 2\gamma)^{1 - 2\gamma}}{(2 - 2\gamma)^{2 - 2\gamma}}$$
+  Analytically evaluates Roger Lee (2004) asymptotic wing slopes $\beta_R, \beta_L < 2$ and critical moment bounds $p^*, q^* > 0$, proving exact equivalence with Condition 1.
 - **Three-Layer No-Arbitrage Verification:**
-  1. *Layer A:* Analytical SSVI parameter certificate with exact condition margins.
+  1. *Layer A:* Analytical SSVI parameter certificate with exact condition margins and Roger Lee critical moments.
   2. *Layer B:* Independent numerical grid diagnostics on Durrleman $g(k, T)$, calendar $w_T(k, T)$, and discrete call price strike convexity.
   3. *Layer C:* Market quote parity interval diagnostics.
-- **Breeden–Litzenberger Risk-Neutral Density:** Exact probability density extraction $q_T(K) = \frac{n(d_2)}{K \sqrt{w}} g(k, T)$ with adaptive numerical quadrature, cumulative mass coverage, and forward first-moment verification. No artificial renormalisation.
-- **Guarded Dupire Local Volatility:** Analytic local variance $\sigma_{loc}^2(k, T) = \frac{w_T(k, T)}{g(k, T)}$ with strict safeguards. Ill-conditioned or singular regions are reason-coded without artificial clipping or undisclosed smoothing. Passes the flat-volatility identity to $< 10^{-10}$ precision.
+- **Breeden–Litzenberger Risk-Neutral Density & Closed-Form CDF:** Exact probability density extraction $q_T(K) = \frac{n(d_2)}{K \sqrt{w}} g(k, T)$ and exact closed-form analytic CDF $Q_T(K) = N(-d_2) + \frac{n(d_2)}{2\sqrt{w}} w_k$ without numerical quadrature artifacts. Extracts full distribution moments: variance, standard deviation, price skewness, log-return skewness, and excess kurtosis.
+- **Exact Guarded Dupire Local Volatility:** Closed-form analytic local variance in forward log-moneyness coordinates $k = \ln(K / F_T)$:
+  $$\sigma_{loc}^2(k, T) = \frac{\partial_T w(k, T)}{g(k, T)}$$
+  Strict safeguards flag ill-conditioned or singular regions with explicit reason codes. Proves the multivariable cancellation between forward coordinate drift and Dupire PDE drift, and reproduces flat volatility to $< 10^{-10}$ precision.
 - **Comparative Research & Ablations:** Automated benchmarks comparing constrained SSVI against independent Raw SVI slices and Flat Black volatility. Demonstrates how independent slice fitting causes calendar spread crossings ($\partial_T w < 0$).
 
 ---
@@ -142,7 +147,7 @@ Measured on Windows 11, Python 3.11.9, NumPy 2.4.6, SciPy 1.17.1 (Seed 42, 300 s
 | **Density First Moment Error** | **0.07%** | $< 1.0\%$ relative to forward | PASS |
 | **Dupire Flat-Vol Identity Error** | **$< 1.0 \times 10^{-10}$** | Machine precision | PASS |
 | **Local Vol Valid Cells** | **100% (flat) / 61.9% (wide synthetic)** | Reason-coded, zero clipping | PASS |
-| **Test Suite Pass Count** | **80 / 80 tests passed** | 100% pass rate, 0 skips | PASS |
+| **Test Suite Pass Count** | **93 / 93 tests passed** | 100% pass rate, 0 skips | PASS |
 
 ### Ablation Comparison Table
 

@@ -107,6 +107,7 @@ def run_market_quote_diagnostics(
                 forward=cq.forward,
                 strike=cq.strike,
                 discount_factor=cq.discount_factor,
+                time_to_maturity=cq.time_to_maturity,
             )
             parity_errors.append(p_res.absolute_parity_error)
             if not p_res.is_interval_consistent:

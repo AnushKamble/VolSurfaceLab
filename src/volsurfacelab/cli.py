@@ -76,6 +76,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     verify_parser.add_argument(
         "--artifact",
+        "--artefact",
+        dest="artifact",
         type=str,
         required=True,
         help="Path to calibration.json or run_artifact.json",
@@ -94,6 +96,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     report_parser.add_argument(
         "--artifact",
+        "--artefact",
+        dest="artifact",
         type=str,
         required=True,
         help="Path to calibration.json or run_artifact.json",
