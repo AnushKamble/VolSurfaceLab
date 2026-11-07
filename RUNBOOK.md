@@ -63,7 +63,13 @@ python -m volsurfacelab report --artifact outputs/demo/calibration.json --output
 python -m volsurfacelab benchmark --config configs/synthetic_default.yaml --output-dir outputs/benchmark
 ```
 
-### Launch Optional Interactive Dashboard
+### Launch Interactive Web Product
 ```powershell
-python -m volsurfacelab dashboard --artifact outputs/demo/run_artifact.json
+python -m volsurfacelab dashboard
+# Or directly via streamlit:
+streamlit run src/volsurfacelab/dashboard/app.py
+```
+To launch with a specific pre-computed artifact:
+```powershell
+python -m volsurfacelab dashboard --artifact outputs/demo/run_artifact.json --port 8501
 ```

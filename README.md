@@ -2,7 +2,7 @@
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests: 80 Passed](https://img.shields.io/badge/tests-80%20passed-brightgreen.svg)]()
+[![Tests: 87 Passed](https://img.shields.io/badge/tests-87%20passed-brightgreen.svg)]()
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
 **Arbitrage-Aware Volatility Surface & Local-Risk Engine** for European vanilla options.
@@ -81,9 +81,47 @@ python -m volsurfacelab report --artifact outputs/demo/calibration.json --output
 # 6. Run multi-model ablation benchmark
 python -m volsurfacelab benchmark --config configs/synthetic_default.yaml --output-dir outputs/benchmark
 
-# 7. Launch optional interactive Streamlit dashboard
-python -m volsurfacelab dashboard --artifact outputs/demo/run_artifact.json
+# 7. Launch full-featured interactive web workbench
+python -m volsurfacelab dashboard
+# Or launch directly with streamlit:
+streamlit run src/volsurfacelab/dashboard/app.py
 ```
+
+---
+
+## 4. Interactive Quantitative Web Workbench
+
+VolSurfaceLab includes an institutional-grade web application (`streamlit run src/volsurfacelab/dashboard/app.py` or `python -m volsurfacelab dashboard`) designed as an end-to-end working product for quantitative analysts, options traders, and risk managers:
+
+1. **📊 Data Studio & Ingestion**:
+   - **Market Presets**: One-click loaders for *Equity Index (S&P 500 style)*, *FX Smiles (EUR/USD style)*, *Commodity Vol (Crude style)*, and *Stress Boundary Scenarios*.
+   - **Synthetic Generator**: Interactive parameter sliders for underlying spot $S_0$, risk-free rate $r$, dividend yield $q$, ground truth SSVI parameters $(\rho, \eta, \gamma)$, strikes per expiry, spread noise, and random seed.
+   - **CSV Ingestion**: Drag-and-drop custom options CSV upload with automated contract cleaning, European exercise-style gating, and quote validation.
+   - **Diagnostic Checks**: Real-time put-call parity interval checks ($D(F-K) \in [C_{bid}-P_{ask}, C_{ask}-P_{bid}]$) and crossed quote detection.
+2. **⚙️ SSVI Calibration Engine**:
+   - Live calibration trigger with customizable loss functions (`soft_l1`, `linear`), bounds safety margins $\varepsilon$, and multi-start solver seeds.
+   - Real-time optimization telemetry: Price RMSE, IV RMSE (bps), % inside spread, and maximum residual errors.
+   - ATM total variance curve $\theta(T)$ visualization showing PCHIP knots and derivative monotonicity $\theta'(T) \ge 0$.
+3. **🌐 3D Surface Explorer**:
+   - Interactive 3D Plotly surfaces for **Implied Volatility $\sigma_{IV}(k, T)$**, **Total Implied Variance $w(k, T)$**, and **Dupire Local Volatility $\sigma_{loc}(K, T)$**.
+   - Custom resolution grids, log-moneyness span controls, camera angle presets, and color palettes (`Viridis`, `Plasma`, `Turbo`, `Cividis`, `Spectral`).
+4. **📈 Smile & Term Structure Slices**:
+   - Per-expiry smile selector featuring dual-panel plots: Market mid/bid/ask quotes vs calibrated SSVI curve vs independent Raw SVI slice, alongside a lower panel displaying dollar pricing residuals against the bid-ask corridor.
+   - Volatility term structure curves across log-moneyness levels ($\pm 25\Delta, \text{ATM}$).
+5. **🛡️ Three-Layer No-Arbitrage Auditor**:
+   - **Layer A**: Gatheral-Jacquier analytical theorem certificate with safety margin gauges for Condition 1 ($\theta \phi (1+|\rho|) < 4$), Condition 2 ($\theta \phi^2 (1+|\rho|) \le 4$), scale cap ($\eta \le \eta_{cap}$), and ATM monotonicity.
+   - **Layer B**: High-resolution 2D heatmaps of **Durrleman butterfly function $g(k, T)$** and **calendar derivative $w_T(k, T)$** with zero-contour lines and pinned global minima.
+   - **Layer C**: Quote put-call parity diagnostics.
+6. **🔬 Breeden–Litzenberger Risk-Neutral Density Lab**:
+   - Computes continuous risk-neutral probability density $q_T(K) = e^{rT} \frac{\partial^2 C}{\partial K^2}$ using exact analytical SSVI strike derivatives.
+   - Slider for integration span ($\pm 2.5\sigma$ to $\pm 6\sigma$) and strike resolution.
+   - Dual-axis density $q(K)$ and CDF $Q(K)$ plot with forward price marker.
+   - Strict unrenormalised Simpson integral verification ($\int q(K) dK \approx 1.0$) and forward martingale expectation audit ($\int K q(K) dK \stackrel{?}{=} F(T)$).
+7. **⚖️ Model Ablation Benchmarking**:
+   - One-click live ablation comparison: SSVI vs Independent Raw SVI vs Flat Black.
+   - Side-by-side KPI comparison table and multi-model smile overlay highlighting calendar arbitrage crossings in independent Raw SVI.
+8. **💾 Export Center**:
+   - One-click downloads for `calibration.json`, `run_artifact.json`, cleaned quotes CSV, and the self-contained standalone HTML audit report.
 
 ---
 

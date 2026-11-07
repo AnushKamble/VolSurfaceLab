@@ -24,3 +24,4 @@
 | REQ-20 | Spec 13.2 | Artefacts Persistence & Standalone HTML Report | `reporting.artifacts`, `reporting.html_report` | `tests/integration/test_cli.py` | Report output check | PASS |
 | REQ-21 | Spec 13.3, 15 | Interactive Visualisations (Plotly) & Dashboard | `visualization.figures`, `dashboard.app` | `tests/unit/test_visualization.py` | Figure test execution | PASS |
 | REQ-22 | Spec 17 | Adversarial Scenarios & Stress Tests (14 scenarios) | `tests/regression/test_adversarial.py` | `tests/regression/test_adversarial.py` | Full adversarial suite | PASS |
+| REQ-23 | Master Prompt 0, 11 | Interactive Quantitative Web Workbench Product | `dashboard.app`, `dashboard.theme` | `tests/unit/test_dashboard.py` | Headless AppTest & unit tests | PASS |
