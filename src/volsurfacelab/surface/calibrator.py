@@ -82,7 +82,7 @@ def calibrate_ssvi(
         mid_arr[i] = q.mid
         opt_types.append(q.option_type)
         k_arr[i] = np.log(K_arr[i] / F_arr[i])
-        
+
         # Scale denominator: max(half_spread, price_scale_floor)
         half_spread = 0.5 * q.spread
         spread_scale_arr[i] = max(half_spread, calib_cfg.price_scale_floor)
@@ -147,7 +147,7 @@ def calibrate_ssvi(
         th_curve = ThetaCurve(expiries, thetas, allow_extrapolation=True)
         # Vectorized evaluation of SSVI total variance
         theta_for_quotes = th_curve.evaluate(T_arr)
-        
+
         # SSVI total variance
         phi_vals = eta / ((theta_for_quotes**gamma) * ((1.0 + theta_for_quotes)**(1.0 - gamma)))
         x = phi_vals * k_arr

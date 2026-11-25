@@ -8,9 +8,9 @@
 
 **Arbitrage-Aware Volatility Surface & Local-Risk Engine** for European vanilla options.
 
-VolSurfaceLab is a quantitative derivatives research engine that takes cross-sections of European option quotes, filters and validates market contracts, robustly inverts Black implied volatilities, calibrates a smooth **Surface SVI (SSVI)** total-variance surface under analytical no-arbitrage constraints, extracts **Breedenâ€“Litzenberger risk-neutral densities**, and evaluates **Dupire local volatility** from exact closed-form derivatives.
+VolSurfaceLab is a quantitative derivatives research engine that takes cross-sections of European option quotes, filters and validates market contracts, robustly inverts Black implied volatilities, calibrates a smooth **Surface SVI (SSVI)** total-variance surface under analytical no-arbitrage constraints, extracts **Breeden–Litzenberger risk-neutral densities**, and evaluates **Dupire local volatility** from exact closed-form derivatives.
 
-> ðŸ“š **Interview Dossier**: For a deep mathematical walkthrough designed for quantitative research interviews at top-tier prop trading firms and hedge funds (Citadel, Jump Trading, Jane Street, Millennium, Point72), read [docs/QUANT_INTERVIEW_DEEP_DIVE.md](docs/QUANT_INTERVIEW_DEEP_DIVE.md).
+> 📚 **Interview Dossier**: For a deep mathematical walkthrough designed for quantitative research interviews at top-tier prop trading firms and hedge funds (Citadel, Jump Trading, Jane Street, Millennium, Point72), read [docs/QUANT_INTERVIEW_DEEP_DIVE.md](docs/QUANT_INTERVIEW_DEEP_DIVE.md).
 
 ---
 
@@ -28,7 +28,7 @@ VolSurfaceLab is a quantitative derivatives research engine that takes cross-sec
   1. *Layer A:* Analytical SSVI parameter certificate with exact condition margins and Roger Lee critical moments.
   2. *Layer B:* Independent numerical grid diagnostics on Durrleman $g(k, T)$, calendar $w_T(k, T)$, and discrete call price strike convexity.
   3. *Layer C:* Market quote parity interval diagnostics.
-- **Breedenâ€“Litzenberger Risk-Neutral Density & Closed-Form CDF:** Exact probability density extraction $q_T(K) = \frac{n(d_2)}{K \sqrt{w}} g(k, T)$ and exact closed-form analytic CDF $Q_T(K) = N(-d_2) + \frac{n(d_2)}{2\sqrt{w}} w_k$ without numerical quadrature artifacts. Extracts full distribution moments: variance, standard deviation, price skewness, log-return skewness, and excess kurtosis.
+- **Breeden–Litzenberger Risk-Neutral Density & Closed-Form CDF:** Exact probability density extraction $q_T(K) = \frac{n(d_2)}{K \sqrt{w}} g(k, T)$ and exact closed-form analytic CDF $Q_T(K) = N(-d_2) + \frac{n(d_2)}{2\sqrt{w}} w_k$ without numerical quadrature artifacts. Extracts full distribution moments: variance, standard deviation, price skewness, log-return skewness, and excess kurtosis.
 - **Exact Guarded Dupire Local Volatility:** Closed-form analytic local variance in forward log-moneyness coordinates $k = \ln(K / F_T)$:
   $$\sigma_{loc}^2(k, T) = \frac{\partial_T w(k, T)}{g(k, T)}$$
   Strict safeguards flag ill-conditioned or singular regions with explicit reason codes. Proves the multivariable cancellation between forward coordinate drift and Dupire PDE drift, and reproduces flat volatility to $< 10^{-10}$ precision.
@@ -99,34 +99,34 @@ streamlit run src/volsurfacelab/dashboard/app.py
 
 VolSurfaceLab includes an institutional-grade web application (`streamlit run src/volsurfacelab/dashboard/app.py` or `python -m volsurfacelab dashboard`) designed as an end-to-end working product for quantitative analysts, options traders, and risk managers:
 
-1. **ðŸ“Š Data Studio & Ingestion**:
+1. **📊 Data Studio & Ingestion**:
    - **Market Presets**: One-click loaders for *Equity Index (S&P 500 style)*, *FX Smiles (EUR/USD style)*, *Commodity Vol (Crude style)*, and *Stress Boundary Scenarios*.
    - **Synthetic Generator**: Interactive parameter sliders for underlying spot $S_0$, risk-free rate $r$, dividend yield $q$, ground truth SSVI parameters $(\rho, \eta, \gamma)$, strikes per expiry, spread noise, and random seed.
    - **CSV Ingestion**: Drag-and-drop custom options CSV upload with automated contract cleaning, European exercise-style gating, and quote validation.
    - **Diagnostic Checks**: Real-time put-call parity interval checks ($D(F-K) \in [C_{bid}-P_{ask}, C_{ask}-P_{bid}]$) and crossed quote detection.
-2. **âš™ï¸ SSVI Calibration Engine**:
+2. **⚙️ SSVI Calibration Engine**:
    - Live calibration trigger with customizable loss functions (`soft_l1`, `linear`), bounds safety margins $\varepsilon$, and multi-start solver seeds.
    - Real-time optimization telemetry: Price RMSE, IV RMSE (bps), % inside spread, and maximum residual errors.
    - ATM total variance curve $\theta(T)$ visualization showing PCHIP knots and derivative monotonicity $\theta'(T) \ge 0$.
-3. **ðŸŒ 3D Surface Explorer**:
+3. **🌐 3D Surface Explorer**:
    - Interactive 3D Plotly surfaces for **Implied Volatility $\sigma_{IV}(k, T)$**, **Total Implied Variance $w(k, T)$**, and **Dupire Local Volatility $\sigma_{loc}(K, T)$**.
    - Custom resolution grids, log-moneyness span controls, camera angle presets, and color palettes (`Viridis`, `Plasma`, `Turbo`, `Cividis`, `Spectral`).
-4. **ðŸ“ˆ Smile & Term Structure Slices**:
+4. **📋ˆ Smile & Term Structure Slices**:
    - Per-expiry smile selector featuring dual-panel plots: Market mid/bid/ask quotes vs calibrated SSVI curve vs independent Raw SVI slice, alongside a lower panel displaying dollar pricing residuals against the bid-ask corridor.
    - Volatility term structure curves across log-moneyness levels ($\pm 25\Delta, \text{ATM}$).
-5. **ðŸ›¡ï¸ Three-Layer No-Arbitrage Auditor**:
+5. **🛡️ Three-Layer No-Arbitrage Auditor**:
    - **Layer A**: Gatheral-Jacquier analytical theorem certificate with safety margin gauges for Condition 1 ($\theta \phi (1+|\rho|) < 4$), Condition 2 ($\theta \phi^2 (1+|\rho|) \le 4$), scale cap ($\eta \le \eta_{cap}$), and ATM monotonicity.
    - **Layer B**: High-resolution 2D heatmaps of **Durrleman butterfly function $g(k, T)$** and **calendar derivative $w_T(k, T)$** with zero-contour lines and pinned global minima.
    - **Layer C**: Quote put-call parity diagnostics.
-6. **ðŸ”¬ Breedenâ€“Litzenberger Risk-Neutral Density Lab**:
+6. **🔬 Breeden–Litzenberger Risk-Neutral Density Lab**:
    - Computes continuous risk-neutral probability density $q_T(K) = e^{rT} \frac{\partial^2 C}{\partial K^2}$ using exact analytical SSVI strike derivatives.
    - Slider for integration span ($\pm 2.5\sigma$ to $\pm 6\sigma$) and strike resolution.
    - Dual-axis density $q(K)$ and CDF $Q(K)$ plot with forward price marker.
    - Strict unrenormalised Simpson integral verification ($\int q(K) dK \approx 1.0$) and forward martingale expectation audit ($\int K q(K) dK \stackrel{?}{=} F(T)$).
-7. **âš–ï¸ Model Ablation Benchmarking**:
+7. **⚖️ Model Ablation Benchmarking**:
    - One-click live ablation comparison: SSVI vs Independent Raw SVI vs Flat Black.
    - Side-by-side KPI comparison table and multi-model smile overlay highlighting calendar arbitrage crossings in independent Raw SVI.
-8. **ðŸ’¾ Export Center**:
+8. **💾 Export Center**:
    - One-click downloads for `calibration.json`, `run_artifact.json`, cleaned quotes CSV, and the self-contained standalone HTML audit report.
 
 ---
@@ -164,19 +164,19 @@ Measured on Windows 11, Python 3.11.9, NumPy 2.4.6, SciPy 1.17.1 (Seed 42, 300 s
 
 ```text
 volsurfacelab/
-â”œâ”€â”€ domain/                      # Domain models, schemas, and typed exceptions
-â”œâ”€â”€ data/                        # CSV provider, quote filtering, synthetic market generator
-â”œâ”€â”€ pricing/                     # Black forward pricing, parity, and Brent IV inversion
-â”œâ”€â”€ surface/                     # SSVI model, PCHIP theta curve, TRF calibrator, Raw SVI baseline
-â”œâ”€â”€ arbitrage/                   # Theorem certificate, butterfly & calendar grid diagnostics
-â”œâ”€â”€ density/                     # Breeden-Litzenberger risk-neutral density engine
-â”œâ”€â”€ local_vol/                   # Dupire local volatility engine & safeguards
-â”œâ”€â”€ evaluation/                  # Baselines, ablations, and synthetic recovery
-â”œâ”€â”€ reporting/                   # JSON/CSV artifact saving and standalone HTML report generator
-â”œâ”€â”€ visualization/               # Plotly 3D surfaces and heatmaps
-â”œâ”€â”€ dashboard/                   # Optional Streamlit interactive dashboard
-â”œâ”€â”€ config.py                    # Pydantic configuration schemas & SHA-256 hash provenance
-â””â”€â”€ cli.py                       # CLI dispatcher
+├── domain/                      # Domain models, schemas, and typed exceptions
+├── data/                        # CSV provider, quote filtering, synthetic market generator
+├── pricing/                     # Black forward pricing, parity, and Brent IV inversion
+├── surface/                     # SSVI model, PCHIP theta curve, TRF calibrator, Raw SVI baseline
+├── arbitrage/                   # Theorem certificate, butterfly & calendar grid diagnostics
+├── density/                     # Breeden-Litzenberger risk-neutral density engine
+├── local_vol/                   # Dupire local volatility engine & safeguards
+├── evaluation/                  # Baselines, ablations, and synthetic recovery
+├── reporting/                   # JSON/CSV artifact saving and standalone HTML report generator
+├── visualization/               # Plotly 3D surfaces and heatmaps
+├── dashboard/                   # Optional Streamlit interactive dashboard
+├── config.py                    # Pydantic configuration schemas & SHA-256 hash provenance
+└── cli.py                       # CLI dispatcher
 ```
 
 ---
@@ -227,15 +227,15 @@ All 14 mandatory adversarial scenarios are verified:
 
 ## 8. Technical References
 
-1. **Gatheral, J. & Jacquier, A. (2014)**, *Arbitrage-free SVI volatility surfaces*, Quantitative Finance, 14(1), 59â€“71. DOI: [10.1080/14697688.2013.819986](https://doi.org/10.1080/14697688.2013.819986).
-2. **Breeden, D. T. & Litzenberger, R. H. (1978)**, *Prices of State-Contingent Claims Implicit in Option Prices*, Journal of Business, 51(4), 621â€“651.
-3. **Dupire, B. (1994)**, *Pricing with a Smile*, Risk, 7(1), 18â€“20.
+1. **Gatheral, J. & Jacquier, A. (2014)**, *Arbitrage-free SVI volatility surfaces*, Quantitative Finance, 14(1), 59–71. DOI: [10.1080/14697688.2013.819986](https://doi.org/10.1080/14697688.2013.819986).
+2. **Breeden, D. T. & Litzenberger, R. H. (1978)**, *Prices of State-Contingent Claims Implicit in Option Prices*, Journal of Business, 51(4), 621–651.
+3. **Dupire, B. (1994)**, *Pricing with a Smile*, Risk, 7(1), 18–20.
 4. **Gatheral, J. (2006)**, *The Volatility Surface: A Practitioner's Guide*, John Wiley & Sons.
 
 ---
 
 ## 9. Resume-Ready Project Bullet Suggestions
 
-- *â€œDeveloped **VolSurfaceLab**, a quantitative Python research engine for calibrating multi-expiry SSVI volatility surfaces from European option quotes under analytical static no-arbitrage constraints.â€*
-- *â€œDerived exact closed-form SSVI strike and time derivatives ($w_k, w_{kk}, w_T$); implemented Breedenâ€“Litzenberger risk-neutral density extraction and guarded Dupire local volatility matching the flat-volatility identity to $< 10^{-10}$ precision.â€*
-- *â€œBuilt a three-layer static-arbitrage verification suite (Gatheral-Jacquier analytical certificate, dense grid butterfly/calendar diagnostics, quote parity intervals) and executed an automated 14-scenario adversarial stress suite achieving 100% pass across 80 tests.â€*
+- *“Developed **VolSurfaceLab**, a quantitative Python research engine for calibrating multi-expiry SSVI volatility surfaces from European option quotes under analytical static no-arbitrage constraints.”*
+- *“Derived exact closed-form SSVI strike and time derivatives ($w_k, w_{kk}, w_T$); implemented Breeden–Litzenberger risk-neutral density extraction and guarded Dupire local volatility matching the flat-volatility identity to $< 10^{-10}$ precision.”*
+- *“Built a three-layer static-arbitrage verification suite (Gatheral-Jacquier analytical certificate, dense grid butterfly/calendar diagnostics, quote parity intervals) and executed an automated 14-scenario adversarial stress suite achieving 100% pass across 80 tests.”*

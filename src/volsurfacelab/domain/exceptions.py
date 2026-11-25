@@ -5,7 +5,7 @@ from enum import Enum
 
 class StatusCode(str, Enum):
     """Reason codes for quote filtering, inversion, calibration, and local vol."""
-    
+
     # Filter / Ingestion codes
     ACCEPTED = "ACCEPTED"
     REJECTED_NON_POSITIVE_STRIKE = "REJECTED_NON_POSITIVE_STRIKE"

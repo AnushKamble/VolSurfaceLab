@@ -72,7 +72,7 @@ def load_quotes_from_csv(
         # Timestamps
         val_time = parse_timestamp(row.get("valuation_timestamp", val_time_default))
         quote_time = parse_timestamp(row.get("quote_timestamp", val_time))
-        
+
         # Expiry timestamp & Time to maturity
         if "expiry_timestamp" in row and not pd.isna(row["expiry_timestamp"]):
             expiry_time = parse_timestamp(row["expiry_timestamp"])

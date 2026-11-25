@@ -53,7 +53,7 @@ def black_forward_price_from_total_variance(
     # Handle w near zero or exactly zero
     # When w -> 0, price is intrinsic discounted value
     is_scalar = (F.ndim == 0 and K.ndim == 0 and D.ndim == 0 and w.ndim == 0)
-    
+
     # Broadcast arrays
     F, K, D, w = np.broadcast_arrays(F, K, D, w)
     price = np.zeros_like(F, dtype=np.float64)

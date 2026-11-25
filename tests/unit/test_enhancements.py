@@ -61,7 +61,7 @@ def test_theta_curve_monotone_extrapolation():
 
 def test_dupire_local_volatility_with_forward_drift():
     """Verify that Dupire local volatility in forward log-moneyness coordinates is w_T / g.
-    
+
     Proves that in forward log-moneyness k = ln(K / F_T), the convective derivative -mu * w_k
     cancels exactly with the PDE drift term mu * K * partial_K C, so local variance is w_T / g
     identically across any drift rate mu.
@@ -243,7 +243,7 @@ def test_parity_preserves_time_to_maturity():
 
 def test_dupire_pde_drift_analytic_cancellation():
     """Prove multivariable cancellation of drift terms in Dupire's equation.
-    
+
     Demonstrates that Dupire's cash PDE numerator:
         Num = partial_T C + (r - q) * K * partial_K C + q * C
     analytically equals:
